@@ -83,7 +83,7 @@ class Train:
             log.debug("write %s", packet.hex(" "))
             await self._link.write(packet)
         except Exception as error:
-            log.warning("write failed: %s", error)
+            log.warning("write failed: %r", error)
             self.state.connected = False
             await self._link.close()
 
