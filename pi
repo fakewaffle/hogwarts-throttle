@@ -1,0 +1,65 @@
+#!/bin/sh
+# Run from the Mac. Drives the throttle on the Pi over ssh (host alias `raspberrypi`).
+set -e
+cd "$(dirname "$0")"
+HOST=${PI_HOST:-raspberrypi}
+SHOT=${TMPDIR:-/tmp}/hogwarts-throttle.png
+
+sync_code() {
+  rsync -a --delete --exclude __pycache__ --exclude .git ./ "$HOST:hogwarts-throttle/"
+}
+
+case "$1" in
+  deploy)
+    python3 -m unittest -q
+    sync_code
+    ssh "$HOST" 'sh hogwarts-throttle/deploy/install.sh && pkill -x chromium || true'
+    ;;
+  ui)
+    sync_code
+    ssh "$HOST" 'pkill -x chromium || true'
+    ;;
+  status)
+    ssh "$HOST" 'systemctl is-active hogwarts-throttle; curl -s 127.0.0.1:8080/api/state; echo; pgrep -x chromium >/dev/null && echo "kiosk: up" || echo "kiosk: down"'
+    ;;
+  logs)
+    shift
+    if [ "$1" = "-f" ]; then
+      ssh -t "$HOST" 'tail -F ~/hogwarts-throttle-logs/throttle.log'
+    else
+      ssh "$HOST" "tail -n ${1:-50} ~/hogwarts-throttle-logs/throttle.log"
+    fi
+    ;;
+  journal)
+    ssh "$HOST" 'journalctl -u hogwarts-throttle -b --no-pager | tail -n 100'
+    ;;
+  restart)
+    ssh "$HOST" 'sudo systemctl restart hogwarts-throttle'
+    ;;
+  screenshot)
+    ssh "$HOST" 'XDG_RUNTIME_DIR=/run/user/1000 WAYLAND_DISPLAY=wayland-0 grim /tmp/shot.png'
+    scp -q "$HOST:/tmp/shot.png" "$SHOT"
+    echo "$SHOT"
+    ;;
+  reboot)
+    ssh "$HOST" 'sudo reboot' || true
+    ;;
+  ssh)
+    exec ssh "$HOST"
+    ;;
+  *)
+    cat <<EOF
+usage: ./pi <command>
+
+  deploy       run tests, copy code, reinstall service + kiosk, reload the screen
+  ui           copy code and reload the screen only (web/ changes)
+  status       service, engine connection and kiosk state
+  logs [N|-f]  last N lines (default 50) of the app log, or follow it
+  journal      systemd journal for this boot
+  restart      restart the throttle service
+  screenshot   capture the Pi's screen to $SHOT
+  reboot       reboot the Pi
+  ssh          open a shell on the Pi
+EOF
+    ;;
+esac

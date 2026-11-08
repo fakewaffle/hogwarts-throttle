@@ -21,10 +21,20 @@ It has speed (shown as 0–100%), direction, STOP, a whistle you hold down, bell
     python3 -m unittest
     python3 -m throttle run --fake        # no Bluetooth; open http://127.0.0.1:8080
 
-## Install on the Pi
+## Operate the Pi
 
-    rsync -a --delete --exclude __pycache__ ./ raspberrypi:hogwarts-throttle/
-    ssh raspberrypi sh hogwarts-throttle/deploy/install.sh   # then reboot once
+Run `./pi` from the Mac. It reaches the Pi over ssh through the `raspberrypi` host alias.
+
+    ./pi deploy        # run the tests, copy the code, reinstall the service and kiosk, reload the screen
+    ./pi ui            # copy the code and reload the screen only (for web/ changes)
+    ./pi status        # service state, engine connection and kiosk
+    ./pi logs [N|-f]   # app log: the last N lines, or follow it
+    ./pi journal       # systemd journal for this boot
+    ./pi restart       # restart the throttle service
+    ./pi screenshot    # capture the touch screen to a PNG
+    ./pi reboot | ssh
+
+On a fresh Pi, run `./pi deploy` once and then `./pi reboot`.
 
 The engine address `E3:5C:B5:BE:24:42` (it advertises as `LC075630`) is set in `deploy/hogwarts-throttle.service`. To find another engine, run `python3 -m throttle scan`.
 

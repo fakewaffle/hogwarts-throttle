@@ -13,15 +13,15 @@ A Raspberry Pi touch-screen throttle for the Lionel Hogwarts Express battery set
 ## Pi
 
 - `ssh raspberrypi` connects as `pi@raspberrypi.local` with key `~/.ssh/raspberrypi_ed25519`. It's a Pi 4 running Debian trixie and labwc (Wayland), with the official 800×480 DSI screen.
-- Deploy: `rsync -a --delete --exclude __pycache__ ./ raspberrypi:hogwarts-throttle/`, then `ssh raspberrypi sh hogwarts-throttle/deploy/install.sh`. After a UI-only change, `ssh raspberrypi pkill -x chromium` is enough, since `lwrespawn` relaunches the kiosk.
+- Use `./pi` for everything: `deploy`, `ui` (web-only changes), `status`, `logs [N|-f]`, `journal`, `restart`, `screenshot` and `reboot`. Run `./pi` with no arguments for the list. After a `web/` change, `./pi ui` is enough, since `lwrespawn` relaunches the kiosk.
 - Never run `pkill -f 'chromium.*kiosk'` over ssh: the pattern matches the ssh command itself and kills the session.
-- Screenshot the screen: `ssh raspberrypi 'XDG_RUNTIME_DIR=/run/user/1000 WAYLAND_DISPLAY=wayland-0 grim /tmp/shot.png'`.
 - Logs are in `~/hogwarts-throttle-logs/throttle.log` (1 MB × 5, rotating) and in `journalctl -u hogwarts-throttle`. The journal is capped at 50 MB.
 
 ## Bluetooth traps
 
 - The engine accepts one connection. A phone running Cab3 or LionChief locks the Pi out.
 - If the process dies, BlueZ keeps the link up and the engine stops advertising. `BleLink` runs `bluetoothctl disconnect` whenever a scan misses, so the next attempt can see it.
+- Turning the smoke on while the train runs has been followed by a disconnect 7–14 seconds later (seen twice on 2026-11-07). The suspected cause is battery sag. The service reconnects and resets the engine to stopped.
 - Each `BleakClient` gets its own close event, so a stale client's late disconnect callback can't drop a newer link.
 
 ## Tests
