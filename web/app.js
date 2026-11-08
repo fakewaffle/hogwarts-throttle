@@ -1,10 +1,13 @@
 const MAX_SPEED = 31;
 const MAX_VOLUME = 7;
 const SEND_INTERVAL_MS = 120;
+// Short Bluetooth blips get a quiet "Reconnecting…" instead of the full-screen card.
+const RECONNECT_GRACE_MS = 10000;
 
 const $ = (id) => document.getElementById(id);
 let state = { connected: false, speed: 0, forward: true, bell: false, lights: true, smoke: false, volume: 5 };
 let dragging = false;
+let lostAt = null;
 
 async function send(action, value) {
   try {
@@ -30,9 +33,12 @@ async function poll() {
 
 function render(next) {
   state = next;
-  document.body.classList.toggle("offline", !state.connected);
+  if (state.connected) lostAt = null;
+  else lostAt ??= performance.now();
+  const reconnecting = lostAt !== null && performance.now() - lostAt < RECONNECT_GRACE_MS;
+  document.body.classList.toggle("offline", !state.connected && !reconnecting);
   $("status").className = `status ${state.connected ? "on" : "off"}`;
-  $("status-text").textContent = state.connected ? "Train connected" : "Looking for the train…";
+  $("status-text").textContent = state.connected ? "Train connected" : reconnecting ? "Reconnecting…" : "Looking for the train…";
   if (!dragging) drawSpeed(state.speed);
   $("forward").classList.toggle("on", state.forward);
   $("reverse").classList.toggle("on", !state.forward);
