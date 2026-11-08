@@ -6,7 +6,7 @@ from . import protocol
 
 log = logging.getLogger(__name__)
 
-RECONNECT_DELAY = 3.0
+RECONNECT_DELAY = 1.0
 
 
 @dataclass
