@@ -9,6 +9,11 @@ sudo cp deploy/hogwarts-throttle.service /etc/systemd/system/
 sudo mkdir -p /etc/systemd/journald.conf.d
 sudo cp deploy/journald-throttle.conf /etc/systemd/journald.conf.d/throttle.conf
 sudo systemctl restart systemd-journald
+# Ride through brief engine radio/power blips: 6 s LE supervision timeout (units of 10 ms; BlueZ default 420 ms).
+if ! grep -q '^ConnectionSupervisionTimeout=600' /etc/bluetooth/main.conf; then
+  sudo sed -i 's/^#\?ConnectionSupervisionTimeout=.*/ConnectionSupervisionTimeout=600/' /etc/bluetooth/main.conf
+  sudo systemctl restart bluetooth
+fi
 sudo systemctl daemon-reload
 sudo systemctl enable --now hogwarts-throttle
 sudo systemctl restart hogwarts-throttle
