@@ -1,0 +1,2 @@
+/usr/bin/kanshi &
+/usr/bin/lwrespawn /home/pi/hogwarts-throttle/deploy/kiosk.sh &

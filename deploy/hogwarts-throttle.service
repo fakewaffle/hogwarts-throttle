@@ -1,0 +1,14 @@
+[Unit]
+Description=Hogwarts Express touch throttle
+After=bluetooth.target
+Wants=bluetooth.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/hogwarts-throttle
+ExecStart=/usr/bin/python3 -m throttle run --address E3:5C:B5:BE:24:42 --log-file /home/pi/hogwarts-throttle-logs/throttle.log
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
