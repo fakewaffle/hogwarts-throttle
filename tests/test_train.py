@@ -74,6 +74,19 @@ class TrainTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(train.state.speed, 0)
         self.assertEqual(link.packets, [])
 
+    async def test_cancelling_run_stops_the_engine(self):
+        link = FakeLink()
+        train = Train(link)
+        task = asyncio.create_task(train.run())
+        while not train.state.connected:
+            await asyncio.sleep(0)
+        await train.apply("speed", 25)
+        task.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await task
+        self.assertEqual(link.packets[-1], protocol.speed(0))
+        self.assertFalse(train.state.connected)
+
     async def test_nothing_sent_while_disconnected(self):
         link = FakeLink()
         train = Train(link)

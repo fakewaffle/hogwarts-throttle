@@ -37,6 +37,20 @@ class Train:
         return asdict(self.state)
 
     async def run(self) -> None:
+        try:
+            await self._keep_connected()
+        finally:
+            await self.shutdown()
+
+    async def shutdown(self) -> None:
+        """Stop the engine and release the link, so a restart never leaves the train running."""
+        log.info("shutting down; stopping the engine")
+        self.state.speed = 0
+        await self._write(protocol.speed(0))
+        self.state.connected = False
+        await self._link.close()
+
+    async def _keep_connected(self) -> None:
         while True:
             try:
                 await self._link.connect()

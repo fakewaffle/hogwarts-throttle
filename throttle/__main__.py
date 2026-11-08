@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import logging
+import signal
 import threading
 from pathlib import Path
 
@@ -16,7 +17,13 @@ async def serve(args) -> None:
     server = make_server(train, asyncio.get_running_loop(), args.host, args.port)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     logging.info("throttle on http://%s:%d", args.host, args.port)
-    await train.run()
+    # systemd stops us with SIGTERM; cancel so Train.run's cleanup stops the engine.
+    loop = asyncio.get_running_loop()
+    loop.add_signal_handler(signal.SIGTERM, asyncio.current_task().cancel)
+    try:
+        await train.run()
+    except asyncio.CancelledError:
+        pass
 
 
 async def print_scan() -> None:
