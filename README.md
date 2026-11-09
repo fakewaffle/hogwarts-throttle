@@ -21,6 +21,7 @@ It has speed (shown as 0–100%), direction, STOP, a whistle you hold down, bell
 - `web/`: the touch UI. Plain HTML, CSS and JS with an inline SVG sprite and a vendored Bebas Neue font (OFL licence).
 - `deploy/`: the systemd unit, journald cap, labwc autostart, Chromium kiosk launcher and `install.sh`.
 - `tests/`: `python3 -m unittest`
+- `docs/screenshots/`: the README screenshots, taken at the Pi screen's 800×480 size
 
 ## Develop
 
@@ -79,3 +80,7 @@ Commands are written to the characteristic `08590f7e-db05-467e-8757-72f6faeb13d4
 | Status / volumes | `01`, `04 00`, `0c` (replies on `…14d3`) |
 
 Lights (`51 0/1`) isn't in Cab3. It comes from captures of the older LionChief app.
+
+## Licence
+
+MIT. See `LICENSE`. Bebas Neue is under the OFL (`web/fonts/OFL-BebasNeue.txt`).
