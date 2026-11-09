@@ -1,5 +1,7 @@
 # hogwarts-throttle
 
+[![tests](https://github.com/fakewaffle/hogwarts-throttle/actions/workflows/tests.yml/badge.svg)](https://github.com/fakewaffle/hogwarts-throttle/actions/workflows/tests.yml)
+
 A full-screen touch throttle for the Lionel Hogwarts Express battery set, which has a LionChief Bluetooth LE engine. It runs on a Raspberry Pi 4 with the official 7" touch screen, starts at power-on, and finds the engine by itself.
 
 It has speed (shown as 0–100%), direction, STOP, a whistle you hold down, bell, lights, smoke, "All aboard!" crew talk and master volume.
