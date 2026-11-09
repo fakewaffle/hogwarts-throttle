@@ -4,6 +4,12 @@ A full-screen touch throttle for the Lionel Hogwarts Express battery set, which 
 
 It has speed (shown as 0–100%), direction, STOP, a whistle you hold down, bell, lights, smoke, "All aboard!" crew talk and master volume.
 
+![The throttle at 65% with lights and smoke on](docs/screenshots/running.png)
+
+| Stopped | Looking for the train |
+| --- | --- |
+| ![The throttle stopped, with the train connected](docs/screenshots/stopped.png) | ![The card shown while the engine isn't connected](docs/screenshots/looking.png) |
+
 ## Layout
 
 - `throttle/`: the Python service. It holds the engine's state, talks Bluetooth LE to it through `bleak`, and serves the UI and a small JSON API on `127.0.0.1:8080`.
